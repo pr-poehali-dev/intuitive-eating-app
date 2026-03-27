@@ -1,0 +1,41 @@
+{
+  "tests": [
+    {
+      "name": "OPTIONS preflight",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
+      "name": "GET без email — ошибка",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 400,
+      "expectedBody": {"error": "email required"},
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "POST создать напоминание",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "email": "test@example.com",
+        "user_name": "Тест",
+        "time": "08:00",
+        "label": "Утренний опрос",
+        "active": true
+      },
+      "expectedStatus": 200,
+      "expectedBody": {"ok": true},
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "GET список напоминаний",
+      "method": "GET",
+      "path": "/?email=test@example.com",
+      "expectedStatus": 200,
+      "expectedBody": {"reminders": []},
+      "bodyMatcher": "partial"
+    }
+  ]
+}
