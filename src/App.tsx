@@ -11,6 +11,7 @@ import TheoryPage from "@/pages/TheoryPage";
 import PracticePage from "@/pages/PracticePage";
 import AnalyticsPage from "@/pages/AnalyticsPage";
 import ProfilePage from "@/pages/ProfilePage";
+import OnboardingPage from "@/pages/OnboardingPage";
 
 type Page = "home" | "diary" | "hunger" | "theory" | "practice" | "analytics" | "profile";
 
@@ -34,6 +35,9 @@ const activeColors: Record<Page, string> = {
 
 export default function App() {
   const [activePage, setActivePage] = useState<Page>("home");
+  const [onboarded, setOnboarded] = useState<boolean>(() => {
+    try { return !!localStorage.getItem("nutrimind_onboarded"); } catch { return false; }
+  });
   const {
     data,
     update,
@@ -47,6 +51,22 @@ export default function App() {
 
   const navigate = (page: string) => setActivePage(page as Page);
   const color = activeColors[activePage];
+
+  const handleOnboardingComplete = (name: string, goal: string) => {
+    update({ userName: name, userGoal: goal });
+    localStorage.setItem("nutrimind_onboarded", "1");
+    setOnboarded(true);
+  };
+
+  if (!onboarded) {
+    return (
+      <TooltipProvider>
+        <div className="max-w-lg mx-auto relative min-h-screen">
+          <OnboardingPage onComplete={handleOnboardingComplete} />
+        </div>
+      </TooltipProvider>
+    );
+  }
 
   const renderPage = () => {
     switch (activePage) {
