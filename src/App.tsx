@@ -89,7 +89,7 @@ export default function App() {
           />
         );
       case "analytics":
-        return <AnalyticsPage />;
+        return <AnalyticsPage meals={data.meals} />;
       case "profile":
         return (
           <ProfilePage
