@@ -3,6 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Icon from "@/components/ui/icon";
+import { useAppStorage } from "@/hooks/useAppStorage";
 import HomePage from "@/pages/HomePage";
 import DiaryPage from "@/pages/DiaryPage";
 import HungerPage from "@/pages/HungerPage";
@@ -33,34 +34,87 @@ const activeColors: Record<Page, string> = {
 
 export default function App() {
   const [activePage, setActivePage] = useState<Page>("home");
+  const {
+    data,
+    update,
+    addMeal,
+    deleteMeal,
+    addHungerEntry,
+    togglePractice,
+    markArticleRead,
+    daysActive,
+  } = useAppStorage();
 
   const navigate = (page: string) => setActivePage(page as Page);
+  const color = activeColors[activePage];
 
   const renderPage = () => {
     switch (activePage) {
-      case "home": return <HomePage onNavigate={navigate} />;
-      case "diary": return <DiaryPage />;
-      case "hunger": return <HungerPage />;
-      case "theory": return <TheoryPage />;
-      case "practice": return <PracticePage />;
-      case "analytics": return <AnalyticsPage />;
-      case "profile": return <ProfilePage />;
+      case "home":
+        return (
+          <HomePage
+            onNavigate={navigate}
+            totalMeals={data.meals.length}
+            totalPractices={data.completedPractices.length}
+            daysActive={daysActive}
+          />
+        );
+      case "diary":
+        return (
+          <DiaryPage
+            meals={data.meals}
+            onAddMeal={addMeal}
+            onDeleteMeal={deleteMeal}
+          />
+        );
+      case "hunger":
+        return (
+          <HungerPage
+            entries={data.hungerEntries}
+            onAddEntry={addHungerEntry}
+          />
+        );
+      case "theory":
+        return (
+          <TheoryPage
+            readArticles={data.readArticles}
+            onMarkRead={markArticleRead}
+          />
+        );
+      case "practice":
+        return (
+          <PracticePage
+            completedPractices={data.completedPractices}
+            onTogglePractice={togglePractice}
+          />
+        );
+      case "analytics":
+        return <AnalyticsPage />;
+      case "profile":
+        return (
+          <ProfilePage
+            totalMeals={data.meals.length}
+            totalPractices={data.completedPractices.length}
+            totalArticles={data.readArticles.length}
+            daysActive={daysActive}
+            userName={data.userName}
+            userGoal={data.userGoal}
+            onUpdateName={(name) => update({ userName: name })}
+            onUpdateGoal={(goal) => update({ userGoal: goal })}
+          />
+        );
     }
   };
-
-  const color = activeColors[activePage];
 
   return (
     <TooltipProvider>
       <Toaster />
       <Sonner />
       <div className="max-w-lg mx-auto relative min-h-screen bg-gray-50">
-        {/* Page content */}
         <div key={activePage} className="animate-fade-in pb-20">
           {renderPage()}
         </div>
 
-        {/* Bottom navigation */}
         <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-lg bg-white/95 backdrop-blur-xl border-t border-gray-100 z-30">
           <div className="flex items-center justify-around px-1 py-2">
             {navItems.map((item) => {
@@ -73,10 +127,7 @@ export default function App() {
                   className="flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-2xl transition-all relative flex-1"
                 >
                   {isActive && (
-                    <div
-                      className="absolute inset-0 rounded-2xl"
-                      style={{ backgroundColor: itemColor + "15" }}
-                    />
+                    <div className="absolute inset-0 rounded-2xl" style={{ backgroundColor: itemColor + "15" }} />
                   )}
                   <Icon
                     name={item.icon}
@@ -84,10 +135,7 @@ export default function App() {
                     className="transition-all relative z-10"
                     style={{ color: itemColor, transform: isActive ? "scale(1.1)" : "scale(1)" }}
                   />
-                  <span
-                    className="text-xs font-medium relative z-10 transition-all"
-                    style={{ color: itemColor }}
-                  >
+                  <span className="text-xs font-medium relative z-10 transition-all" style={{ color: itemColor }}>
                     {item.label}
                   </span>
                 </button>
@@ -101,16 +149,8 @@ export default function App() {
               {activePage === "analytics" && (
                 <div className="absolute inset-0 rounded-2xl" style={{ backgroundColor: "#54A0FF15" }} />
               )}
-              <Icon
-                name="BarChart2"
-                size={20}
-                style={{ color: activePage === "analytics" ? "#54A0FF" : "#9ca3af" }}
-                className="relative z-10 transition-all"
-              />
-              <span
-                className="text-xs font-medium relative z-10"
-                style={{ color: activePage === "analytics" ? "#54A0FF" : "#9ca3af" }}
-              >
+              <Icon name="BarChart2" size={20} style={{ color: activePage === "analytics" ? "#54A0FF" : "#9ca3af" }} className="relative z-10 transition-all" />
+              <span className="text-xs font-medium relative z-10" style={{ color: activePage === "analytics" ? "#54A0FF" : "#9ca3af" }}>
                 Прогресс
               </span>
             </button>
@@ -124,28 +164,17 @@ export default function App() {
               )}
               <div
                 className="w-5 h-5 rounded-full flex items-center justify-center text-xs relative z-10"
-                style={{
-                  background: activePage === "profile"
-                    ? "linear-gradient(135deg, #FF6B6B, #FF9F43)"
-                    : "#e5e7eb"
-                }}
+                style={{ background: activePage === "profile" ? "linear-gradient(135deg, #FF6B6B, #FF9F43)" : "#e5e7eb" }}
               >
                 {activePage === "profile" ? "🌸" : <Icon name="User" size={12} className="text-gray-400" />}
               </div>
-              <span
-                className="text-xs font-medium relative z-10"
-                style={{ color: activePage === "profile" ? "#845EF7" : "#9ca3af" }}
-              >
+              <span className="text-xs font-medium relative z-10" style={{ color: activePage === "profile" ? "#845EF7" : "#9ca3af" }}>
                 Профиль
               </span>
             </button>
           </div>
 
-          {/* Active indicator bar */}
-          <div
-            className="h-1 rounded-full mx-4 mb-1 transition-all duration-300"
-            style={{ background: `linear-gradient(90deg, ${color}00, ${color}, ${color}00)` }}
-          />
+          <div className="h-1 rounded-full mx-4 mb-1 transition-all duration-300" style={{ background: `linear-gradient(90deg, ${color}00, ${color}, ${color}00)` }} />
         </nav>
       </div>
     </TooltipProvider>

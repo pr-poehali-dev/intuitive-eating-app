@@ -9,13 +9,17 @@ interface Article {
   emoji: string;
   gradient: string;
   content: string;
-  completed: boolean;
+}
+
+interface TheoryPageProps {
+  readArticles: number[];
+  onMarkRead: (id: number) => void;
 }
 
 const articles: Article[] = [
   {
     id: 1, category: "Основы", title: "Что такое интуитивное питание?",
-    duration: "5 мин", emoji: "🌱", gradient: "gradient-mint", completed: true,
+    duration: "5 мин", emoji: "🌱", gradient: "gradient-mint",
     content: `Интуитивное питание (ИП) — это подход к питанию, разработанный диетологами Эвелин Трибол и Элизой Реш в 1995 году. Он основан на 10 принципах, которые помогают восстановить естественную связь с телом.
 
 **Ключевая идея:** Твоё тело уже знает, что ему нужно. Нужно только научиться его слушать.
@@ -28,7 +32,7 @@ const articles: Article[] = [
   },
   {
     id: 2, category: "Основы", title: "10 принципов интуитивного питания",
-    duration: "8 мин", emoji: "📋", gradient: "gradient-coral", completed: true,
+    duration: "8 мин", emoji: "📋", gradient: "gradient-coral",
     content: `**1. Откажись от диетного мышления** — Диеты не работают долгосрочно. 95% людей возвращают вес.
 
 **2. Уважай голод** — Еда при физическом голоде — это необходимость, не слабость.
@@ -51,7 +55,7 @@ const articles: Article[] = [
   },
   {
     id: 3, category: "Психология", title: "Эмоциональный голод vs физический",
-    duration: "6 мин", emoji: "🧠", gradient: "gradient-violet", completed: false,
+    duration: "6 мин", emoji: "🧠", gradient: "gradient-violet",
     content: `Умение отличать эмоциональный голод от физического — один из ключевых навыков ИП.
 
 **Физический голод:**
@@ -75,7 +79,7 @@ const articles: Article[] = [
   },
   {
     id: 4, category: "Психология", title: "Диетное мышление и как от него избавиться",
-    duration: "7 мин", emoji: "🔓", gradient: "gradient-warm", completed: false,
+    duration: "7 мин", emoji: "🔓", gradient: "gradient-warm",
     content: `Диетное мышление формируется годами и проявляется в убеждениях типа:
 "Этот продукт нельзя", "Я плохо поел — надо отработать в зале", "С понедельника начну правильно питаться".
 
@@ -94,7 +98,7 @@ const articles: Article[] = [
   },
   {
     id: 5, category: "Тело", title: "Как слышать сигналы тела",
-    duration: "5 мин", emoji: "👂", gradient: "gradient-cool", completed: false,
+    duration: "5 мин", emoji: "👂", gradient: "gradient-cool",
     content: `Многие из нас потеряли связь с сигналами тела из-за лет диет, правил питания и еды "по расписанию".
 
 **Сигналы голода:**
@@ -111,7 +115,7 @@ const articles: Article[] = [
   },
   {
     id: 6, category: "Наука", title: "Гормоны голода: лептин и грелин",
-    duration: "6 мин", emoji: "🔬", gradient: "gradient-mint", completed: false,
+    duration: "6 мин", emoji: "🔬", gradient: "gradient-mint",
     content: `Два главных гормона регулируют голод и насыщение.
 
 **Грелин — гормон голода:**
@@ -132,12 +136,12 @@ const articles: Article[] = [
 
 const categories = ["Все", "Основы", "Психология", "Тело", "Наука"];
 
-export default function TheoryPage() {
+export default function TheoryPage({ readArticles, onMarkRead }: TheoryPageProps) {
   const [activeCategory, setActiveCategory] = useState("Все");
   const [openArticle, setOpenArticle] = useState<Article | null>(null);
 
   const filtered = activeCategory === "Все" ? articles : articles.filter((a) => a.category === activeCategory);
-  const completedCount = articles.filter((a) => a.completed).length;
+  const completedCount = readArticles.length;
 
   return (
     <div className="min-h-screen bg-gray-50 pb-24">
@@ -198,7 +202,7 @@ export default function TheoryPage() {
                 <div className="flex items-center justify-between">
                   <span className="text-2xl">{article.emoji}</span>
                   <div className="flex items-center gap-2">
-                    {article.completed && (
+                    {readArticles.includes(article.id) && (
                       <div className="w-6 h-6 bg-white/30 rounded-full flex items-center justify-center">
                         <Icon name="Check" size={12} className="text-white" />
                       </div>
@@ -251,10 +255,10 @@ export default function TheoryPage() {
               ))}
 
               <button
-                onClick={() => setOpenArticle(null)}
-                className="w-full gradient-mint text-white font-semibold py-4 rounded-2xl mt-4"
+                onClick={() => { onMarkRead(openArticle.id); setOpenArticle(null); }}
+                className={`w-full font-semibold py-4 rounded-2xl mt-4 transition-all ${readArticles.includes(openArticle.id) ? "bg-gray-100 text-gray-500" : "gradient-mint text-white"}`}
               >
-                ✅ Прочитано
+                {readArticles.includes(openArticle.id) ? "✓ Уже прочитано" : "✅ Отметить как прочитанное"}
               </button>
             </div>
           </div>

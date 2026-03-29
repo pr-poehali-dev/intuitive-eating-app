@@ -3,6 +3,9 @@ import Icon from "@/components/ui/icon";
 
 interface HomePageProps {
   onNavigate: (page: string) => void;
+  totalMeals: number;
+  totalPractices: number;
+  daysActive: number;
 }
 
 const quotes = [
@@ -12,7 +15,7 @@ const quotes = [
   "Еда — это удовольствие, а не наказание",
 ];
 
-export default function HomePage({ onNavigate }: HomePageProps) {
+export default function HomePage({ onNavigate, totalMeals, totalPractices, daysActive }: HomePageProps) {
   const [quote, setQuote] = useState(quotes[0]);
   const [quoteIdx, setQuoteIdx] = useState(0);
   const [hunger, setHunger] = useState(5);
@@ -118,9 +121,9 @@ export default function HomePage({ onNavigate }: HomePageProps) {
       <div className="max-w-lg mx-auto px-6 -mt-4">
         <div className="grid grid-cols-3 gap-3 mb-6">
           {[
-            { label: "Дней подряд", value: "7", icon: "🔥" },
-            { label: "Записей", value: "23", icon: "📝" },
-            { label: "Упражнений", value: "12", icon: "✅" },
+            { label: "Дней в приложении", value: String(daysActive), icon: "🔥" },
+            { label: "Записей", value: String(totalMeals), icon: "📝" },
+            { label: "Упражнений", value: String(totalPractices), icon: "✅" },
           ].map((stat) => (
             <div key={stat.label} className="glass rounded-2xl p-3 text-center card-hover shadow-sm">
               <div className="text-xl mb-1">{stat.icon}</div>

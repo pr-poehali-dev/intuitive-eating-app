@@ -14,11 +14,22 @@ const achievements = [
   { id: 8, emoji: "🦋", title: "Трансформация", desc: "Завершил(а) все практики", unlocked: false },
 ];
 
-interface Reminder {
+export interface Reminder {
   id?: number;
   time: string;
   label: string;
   active: boolean;
+}
+
+interface ProfilePageProps {
+  totalMeals: number;
+  totalPractices: number;
+  totalArticles: number;
+  daysActive: number;
+  userName: string;
+  userGoal: string;
+  onUpdateName: (name: string) => void;
+  onUpdateGoal: (goal: string) => void;
 }
 
 const DEFAULT_REMINDERS: Reminder[] = [
@@ -27,10 +38,10 @@ const DEFAULT_REMINDERS: Reminder[] = [
   { time: "19:00", label: "Вечерний рефлекс", active: false },
 ];
 
-export default function ProfilePage() {
-  const [name, setName] = useState("Анна");
-  const [editName, setEditName] = useState(false);
-  const [goal, setGoal] = useState("Восстановить связь с телом");
+export default function ProfilePage({ totalMeals, totalPractices, totalArticles, daysActive, userName, userGoal, onUpdateName, onUpdateGoal }: ProfilePageProps) {
+  const [name, setName] = useState(userName || "");
+  const [editName, setEditName] = useState(!userName);
+  const [goal, setGoal] = useState(userGoal || "");
   const [email, setEmail] = useState("");
   const [emailInput, setEmailInput] = useState("");
   const [emailSaved, setEmailSaved] = useState(false);
@@ -51,7 +62,7 @@ export default function ProfilePage() {
   const saveEmail = async () => {
     if (!emailInput.includes("@")) return;
     localStorage.setItem("nutrimind_email", emailInput);
-    localStorage.setItem("nutrimind_name", name);
+    onUpdateName(name);
     setEmail(emailInput);
     setEmailSaved(true);
 
@@ -131,7 +142,7 @@ export default function ProfilePage() {
                 className="bg-white/20 text-white font-display font-bold text-2xl text-center rounded-xl px-3 py-1 border border-white/30 focus:outline-none"
               />
               <button
-                onClick={() => { setEditName(false); localStorage.setItem("nutrimind_name", name); }}
+                onClick={() => { setEditName(false); onUpdateName(name); }}
                 className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center"
               >
                 <Icon name="Check" size={14} className="text-white" />
@@ -145,7 +156,7 @@ export default function ProfilePage() {
               </button>
             </div>
           )}
-          <p className="text-white/70 text-sm">7 дней в приложении · {unlockedCount} достижений</p>
+          <p className="text-white/70 text-sm">{daysActive} дней в приложении · {unlockedCount} достижений</p>
         </div>
       </div>
 
@@ -153,9 +164,9 @@ export default function ProfilePage() {
         {/* Stats */}
         <div className="grid grid-cols-3 gap-3 mb-5">
           {[
-            { label: "Записей", value: "23", icon: "📝" },
-            { label: "Практик", value: "5", icon: "✅" },
-            { label: "Статей", value: "8", icon: "📚" },
+            { label: "Записей", value: String(totalMeals), icon: "📝" },
+            { label: "Практик", value: String(totalPractices), icon: "✅" },
+            { label: "Статей", value: String(totalArticles), icon: "📚" },
           ].map((s) => (
             <div key={s.label} className="glass rounded-2xl p-3 text-center shadow-sm">
               <div className="text-lg mb-0.5">{s.icon}</div>
@@ -171,8 +182,10 @@ export default function ProfilePage() {
           <textarea
             value={goal}
             onChange={(e) => setGoal(e.target.value)}
+            onBlur={() => onUpdateGoal(goal)}
             className="w-full bg-gray-50 rounded-2xl p-3 text-sm text-gray-700 resize-none focus:outline-none focus:ring-2 focus:ring-violet/30"
             rows={2}
+            placeholder="Напиши свою цель..."
           />
         </div>
 

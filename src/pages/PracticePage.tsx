@@ -11,14 +11,13 @@ interface Exercise {
   gradient: string;
   description: string;
   steps: string[];
-  completed: boolean;
 }
 
 const exercises: Exercise[] = [
   {
     id: 1, title: "Проверка голода",
     category: "Осознанность", duration: "2 мин", difficulty: "Лёгкое",
-    emoji: "🎯", gradient: "gradient-coral", completed: true,
+    emoji: "🎯", gradient: "gradient-coral",
     description: "Практикуй оценку голода перед каждым приёмом пищи в течение одного дня.",
     steps: [
       "Перед едой остановись на 30 секунд",
@@ -31,10 +30,10 @@ const exercises: Exercise[] = [
   {
     id: 2, title: "Медленное поедание",
     category: "Осознанность", duration: "20 мин", difficulty: "Среднее",
-    emoji: "🐢", gradient: "gradient-violet", completed: true,
+    emoji: "🐢", gradient: "gradient-violet",
     description: "Съешь один приём пищи в 2 раза медленнее обычного, полностью сосредоточившись на процессе.",
     steps: [
-      "Выключи все экраны и уберри телефон",
+      "Выключи все экраны и убери телефон",
       "Накрой стол — сервируй еду красиво",
       "Перед первым кусочком: сделай 3 глубоких вдоха",
       "Клади вилку/ложку между каждым укусом",
@@ -45,7 +44,7 @@ const exercises: Exercise[] = [
   {
     id: 3, title: "Дневник эмоций перед едой",
     category: "Психология", duration: "5 мин", difficulty: "Лёгкое",
-    emoji: "📔", gradient: "gradient-warm", completed: false,
+    emoji: "📔", gradient: "gradient-warm",
     description: "Перед каждым приёмом пищи за неделю записывай своё эмоциональное состояние.",
     steps: [
       "Заведи блокнот или используй дневник в приложении",
@@ -58,7 +57,7 @@ const exercises: Exercise[] = [
   {
     id: 4, title: "Разрешение еды",
     category: "Свобода от диет", duration: "15 мин", difficulty: "Сложное",
-    emoji: "🔓", gradient: "gradient-mint", completed: false,
+    emoji: "🔓", gradient: "gradient-mint",
     description: "Купи и съешь 'запрещённый' продукт в спокойной обстановке, без спешки и чувства вины.",
     steps: [
       "Выбери продукт, который ты обычно запрещаешь себе",
@@ -72,7 +71,7 @@ const exercises: Exercise[] = [
   {
     id: 5, title: "Сканирование тела",
     category: "Тело", duration: "10 мин", difficulty: "Среднее",
-    emoji: "🧘", gradient: "gradient-cool", completed: false,
+    emoji: "🧘", gradient: "gradient-cool",
     description: "Медитация для восстановления связи с телом и его сигналами.",
     steps: [
       "Сядь удобно или ляг на спину",
@@ -86,7 +85,7 @@ const exercises: Exercise[] = [
   {
     id: 6, title: "Еда с удовольствием",
     category: "Удовольствие", duration: "30 мин", difficulty: "Лёгкое",
-    emoji: "😋", gradient: "gradient-coral", completed: false,
+    emoji: "😋", gradient: "gradient-coral",
     description: "Приготовь или закажи любимое блюдо и наслаждайся им без угрызений совести.",
     steps: [
       "Вспомни блюдо, которое приносит настоящую радость",
@@ -105,27 +104,25 @@ const diffColors: Record<string, string> = {
   "Сложное": "#845EF7",
 };
 
-export default function PracticePage() {
+interface PracticePageProps {
+  completedPractices: number[];
+  onTogglePractice: (id: number) => void;
+}
+
+export default function PracticePage({ completedPractices, onTogglePractice }: PracticePageProps) {
   const [activeCategory, setActiveCategory] = useState("Все");
   const [openExercise, setOpenExercise] = useState<Exercise | null>(null);
-  const [completedIds, setCompletedIds] = useState<number[]>([1, 2]);
 
-  const filtered = activeCategory === "Все"
-    ? exercises
-    : exercises.filter((e) => e.category === activeCategory);
-
-  const totalCompleted = completedIds.length;
+  const filtered = activeCategory === "Все" ? exercises : exercises.filter((e) => e.category === activeCategory);
+  const totalCompleted = completedPractices.length;
 
   const handleComplete = (id: number) => {
-    if (!completedIds.includes(id)) {
-      setCompletedIds([...completedIds, id]);
-    }
+    onTogglePractice(id);
     setOpenExercise(null);
   };
 
   return (
     <div className="min-h-screen bg-gray-50 pb-24">
-      {/* Header */}
       <div className="gradient-warm noise-overlay px-6 pt-10 pb-8">
         <div className="max-w-lg mx-auto">
           <h1 className="font-display font-bold text-white text-2xl mb-1">Практика</h1>
@@ -147,41 +144,31 @@ export default function PracticePage() {
       </div>
 
       <div className="max-w-lg mx-auto px-6 -mt-4">
-        {/* Progress bar */}
         <div className="glass rounded-3xl p-4 mb-5 shadow-sm">
           <div className="flex justify-between mb-2">
             <span className="text-gray-700 font-semibold text-sm">Прогресс</span>
             <span className="text-gray-500 text-sm">{totalCompleted}/{exercises.length}</span>
           </div>
           <div className="h-3 bg-gray-100 rounded-full">
-            <div
-              className="h-3 gradient-warm rounded-full transition-all duration-700"
-              style={{ width: `${(totalCompleted / exercises.length) * 100}%` }}
-            />
+            <div className="h-3 gradient-warm rounded-full transition-all duration-700" style={{ width: `${(totalCompleted / exercises.length) * 100}%` }} />
           </div>
         </div>
 
-        {/* Category filter */}
         <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1 mb-5">
           {categories.map((cat) => (
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
-              className={`px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all flex-shrink-0 ${
-                activeCategory === cat
-                  ? "gradient-warm text-white shadow-sm"
-                  : "bg-white text-gray-600 border border-gray-200"
-              }`}
+              className={`px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all flex-shrink-0 ${activeCategory === cat ? "gradient-warm text-white shadow-sm" : "bg-white text-gray-600 border border-gray-200"}`}
             >
               {cat}
             </button>
           ))}
         </div>
 
-        {/* Exercises */}
         <div className="space-y-3 mb-6">
           {filtered.map((ex, i) => {
-            const isCompleted = completedIds.includes(ex.id);
+            const isCompleted = completedPractices.includes(ex.id);
             return (
               <button
                 key={ex.id}
@@ -203,17 +190,14 @@ export default function PracticePage() {
                     </div>
                     <div className="flex flex-col items-end gap-1">
                       <span className="text-white/70 text-xs">{ex.duration}</span>
-                      <span
-                        className="text-xs px-2 py-0.5 rounded-full text-white font-medium"
-                        style={{ backgroundColor: "rgba(255,255,255,0.25)" }}
-                      >
+                      <span className="text-xs px-2 py-0.5 rounded-full text-white font-medium" style={{ backgroundColor: diffColors[ex.difficulty] + "80" }}>
                         {ex.difficulty}
                       </span>
                     </div>
                   </div>
                 </div>
-                <div className="px-4 py-3">
-                  <p className="text-gray-600 text-sm leading-relaxed">{ex.description}</p>
+                <div className="p-3 bg-white">
+                  <p className="text-gray-500 text-xs line-clamp-2">{ex.description}</p>
                 </div>
               </button>
             );
@@ -221,57 +205,42 @@ export default function PracticePage() {
         </div>
       </div>
 
-      {/* Exercise modal */}
       {openExercise && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-end">
-          <div className="bg-white w-full max-w-lg mx-auto rounded-t-3xl max-h-[90vh] overflow-hidden flex flex-col">
-            <div className={`${openExercise.gradient} p-5 noise-overlay flex-shrink-0`}>
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-3xl">{openExercise.emoji}</span>
-                <button
-                  onClick={() => setOpenExercise(null)}
-                  className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center"
-                >
+          <div className="bg-white w-full max-w-lg mx-auto rounded-t-3xl max-h-[85vh] overflow-y-auto">
+            <div className={`${openExercise.gradient} p-6 noise-overlay rounded-t-3xl`}>
+              <div className="flex items-start justify-between">
+                <div>
+                  <span className="text-3xl">{openExercise.emoji}</span>
+                  <p className="text-white/70 text-sm mt-2">{openExercise.category} · {openExercise.duration}</p>
+                  <h3 className="text-white font-display font-bold text-xl mt-1">{openExercise.title}</h3>
+                </div>
+                <button onClick={() => setOpenExercise(null)} className="w-9 h-9 bg-white/20 rounded-full flex items-center justify-center">
                   <Icon name="X" size={16} className="text-white" />
                 </button>
               </div>
-              <div className="flex items-center gap-2 mb-1">
-                <span className="text-white/70 text-xs">{openExercise.category}</span>
-                <span className="text-white/50 text-xs">·</span>
-                <span className="text-white/70 text-xs">{openExercise.duration}</span>
-                <span
-                  className="text-xs px-2 py-0.5 rounded-full text-white font-medium ml-1"
-                  style={{ backgroundColor: "rgba(255,255,255,0.25)" }}
-                >
-                  {openExercise.difficulty}
-                </span>
-              </div>
-              <h2 className="text-white font-display font-bold text-xl">{openExercise.title}</h2>
             </div>
 
-            <div className="overflow-y-auto p-6 flex-1">
+            <div className="p-6">
               <p className="text-gray-600 text-sm mb-5 leading-relaxed">{openExercise.description}</p>
 
-              <h3 className="font-display font-semibold text-gray-800 mb-3">Шаги:</h3>
+              <h4 className="font-display font-bold text-gray-800 mb-3">Шаги выполнения:</h4>
               <div className="space-y-3 mb-6">
                 {openExercise.steps.map((step, i) => (
-                  <div key={i} className="flex items-start gap-3">
-                    <div
-                      className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0 mt-0.5"
-                      style={{ backgroundColor: diffColors[openExercise.difficulty] }}
-                    >
+                  <div key={i} className="flex gap-3">
+                    <div className={`w-7 h-7 ${openExercise.gradient} rounded-xl flex items-center justify-center text-white font-bold text-xs flex-shrink-0 mt-0.5`}>
                       {i + 1}
                     </div>
-                    <p className="text-gray-700 text-sm leading-relaxed pt-1">{step}</p>
+                    <p className="text-gray-700 text-sm leading-relaxed">{step}</p>
                   </div>
                 ))}
               </div>
 
               <button
                 onClick={() => handleComplete(openExercise.id)}
-                className="w-full gradient-mint text-white font-semibold py-4 rounded-2xl"
+                className={`w-full font-semibold py-3.5 rounded-2xl transition-all ${completedPractices.includes(openExercise.id) ? "bg-gray-100 text-gray-500" : `${openExercise.gradient} text-white`}`}
               >
-                ✅ Отметить выполненным
+                {completedPractices.includes(openExercise.id) ? "✓ Выполнено (снять отметку)" : "Отметить как выполненное"}
               </button>
             </div>
           </div>
